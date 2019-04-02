@@ -27,7 +27,8 @@ NOW = datetime.now()
 
 
 def main(args):
-    nf = noaa_fetcher(args.year, args.month, args.day, args.hour)
+    nf = noaa_fetcher(args.year, args.month, args.day,
+                      args.hour, args.forecast_hour)
     os.mkdir(args.target_directory)
     nf.fetch(args.requested_resolution, args.target_directory,
              nthreads=args.n_download_threads)
@@ -75,6 +76,11 @@ def add_parser(subparsers):
         '--semaphore-file', metavar='FILE', type=str,
         default='/gfs/.__success__',
         help="zero size semaphore file written when all went well"
+    )
+    parser.add_argument(
+        '--forecast-hour', metavar='FORECAST_HOUR',
+        type=int, default=6,
+        help="Download data up to FORECAST_HOUR included"
     )
     parser.add_argument(
         '--requested-resolution', metavar='RESOLUTION',

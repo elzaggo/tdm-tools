@@ -23,6 +23,10 @@ logging.basicConfig()
 LOGGER = logging.getLogger('tdm.gfs.noaa')
 LOGGER.setLevel(logging.DEBUG)
 
+def forecast_hour(fname):
+    if fname.endswith('.anl'):
+        return 0
+    return int(fname[-3:])
 
 class noaa_fetcher(object):
     NOAA_FTP_SERVER = 'ftpprd.ncep.noaa.gov'
@@ -49,10 +53,12 @@ class noaa_fetcher(object):
     def list_available_dataset_groups(cls):
         return cls.list_files_in_path(cls.NOAA_BASE_PATH)
 
-    def __init__(self, year, month, day, hour):
+    def __init__(self, year, month, day, hour, forecast_hour):
         self.date = datetime.datetime(year, month, day, hour, 0)
         self.ds = 'gfs.%s' % self.date.strftime("%Y%m%d%H")
-        LOGGER.info('Initialized for dataset %s', self.ds)
+        self.forecast_hour = forecast_hour
+        LOGGER.info('Initialized for dataset %s forecast %s',
+                    self.ds, self.forecast_hour)
 
     def is_dataset_ready(self):
         available_groups = self.list_available_dataset_groups()
@@ -98,7 +104,9 @@ class noaa_fetcher(object):
                         self.ds, tsleep)
             time.sleep(tsleep)
         files = [f for f in self.list_files_in_path(ds_path)
-                 if f.startswith(pre) and not f.endswith('.idx')]
+                 if (f.startswith(pre)
+                     and not f.endswith('.idx')
+                     and forecast_hour(f) <= self.forecast_hour)]
         begin = datetime.datetime.now()
         with futures.ThreadPoolExecutor(max_workers=nthreads) as executor:
             for i in range(self.FETCH_ATTEMPTS):
