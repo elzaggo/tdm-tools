@@ -25,7 +25,7 @@ LOGGER.setLevel(logging.DEBUG)
 
 
 class noaa_fetcher(object):
-    NOAA_FTP_SERVER = 'ftp.ncep.noaa.gov'
+    NOAA_FTP_SERVER = 'ftpprd.ncep.noaa.gov'
     NOAA_BASE_PATH = '/pub/data/nccf/com/gfs/prod/'
     NOAA_DATASET_FOLDER_SIZE = 196608
     FETCH_ATTEMPTS = 3
